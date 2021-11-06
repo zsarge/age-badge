@@ -2,30 +2,31 @@
 
 const BIRTHDAY = "06/07/2004";
 
+// this could be parameterized, but I don't want other people using up my aws resources.
+const rawMiliseconds = new Date() - new Date(BIRTHDAY);
+const rawSeconds = Math.floor(rawMiliseconds / 1000);
+const rawMinutes = Math.floor(rawSeconds / 60);
+const rawHours   = Math.floor(rawMinutes / 60);
+const rawDays    = Math.floor(rawHours / 24);
+const rawMonths  = Math.floor(rawDays / 30);
+const rawYears   = Math.floor(rawDays / 365);
+
+const seconds = rawSeconds % 60;
+const minutes = rawMinutes % 60;
+const hours   = rawHours % 24;
+const days    = rawDays % 30;
+const months  = rawMonths % 12;
+const years   = rawYears;
+
+const s = (num) => num === 1 ? "" : "s";
+
 /**
  * returns a string with the time since my birthday
  * NOTE: This is an approximation, and is not exactly accurate.
  * @param {number} the degree to which the answer is specified (between 1 and 6)
  * @returns {String} Returns a human readable string with the time since my birthday
  */
-function getTimeString(length = 6) {
-	// this could be parameterized, but I don't want other people using up my aws resources.
-	let miliseconds = new Date() - new Date(BIRTHDAY);
-	let seconds = Math.floor(miliseconds / 1000);
-	let minutes = Math.floor(seconds / 60);
-	let hours   = Math.floor(minutes / 60);
-	let days    = Math.floor(hours / 24);
-	let months  = Math.floor(days / 30);
-	let years   = Math.floor(days / 365);
-
-	seconds %= 60;
-	minutes %= 60;
-	hours %= 24;
-	days %= 30;
-	months %= 12;
-
-	const s = (num) => num === 1 ? "" : "s";
-
+function getNormalTimeString(length = 6) {
 	// length <= 1
 	let result = `${years} year${s(years)}`;
 
@@ -48,6 +49,26 @@ function getTimeString(length = 6) {
 	return result + " old";
 }
 
+function getDogYears() {
+	const dogYears = years * 7;
+	return `${dogYears} year${s(dogYears)} old (in dog years)`;
+}
+
+function getMicroCenturies() {
+	const microcenturies = Math.round((rawMinutes / 52.595) * 100) / 100;
+	return `${microcenturies} microcenturies old`
+}
+
+function getTimeString(option) {
+	if (option <= 6) {
+		return getNormalTimeString(option);
+	} else if (option === 7) {
+		return getDogYears();
+	} else if (option === 8) {
+		return getMicroCenturies();
+	}
+}
+
 /**
  * Returns a random integer between min (inclusive) and max (inclusive).
  * The value is no lower than min (or the next integer greater than min
@@ -63,7 +84,7 @@ function getRandomInt(min, max) {
 
 exports.handler = async (event) => {
 	// Just show a star as an example
-	const timeString = getTimeString(getRandomInt(1, 6));
+	const timeString = getTimeString(getRandomInt(1, 8));
 	const width = (timeString.length * 6.62) + 20;
 	const height = 30;
 	const svg = `
