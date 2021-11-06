@@ -8,7 +8,7 @@ const BIRTHDAY = "06/07/2004";
  * @param {number} the degree to which the answer is specified (between 1 and 6)
  * @returns {String} Returns a human readable string with the time since my birthday
  */
-function getFullTimeString(length = 6) {
+function getTimeString(length = 6) {
 	// this could be parameterized, but I don't want other people using up my aws resources.
 	let miliseconds = new Date() - new Date(BIRTHDAY);
 	let seconds = Math.floor(miliseconds / 1000);
@@ -42,25 +42,57 @@ function getFullTimeString(length = 6) {
 		result += `, ${minutes} minute${s(minutes)}`;
 	}
 	if (length >= 6) {
-		result += `, and ${seconds} second${s(seconds)}`;
+		result += `, ${seconds} second${s(seconds)}`;
 	}
 
 	return result + " old";
 }
 
-for (let i = 1; i <= 6; i++)
-	console.log(getFullTimeString(i));
+/**
+ * Returns a random integer between min (inclusive) and max (inclusive).
+ * The value is no lower than min (or the next integer greater than min
+ * if min isn't an integer) and no greater than max (or the next integer
+ * lower than max if max isn't an integer).
+ * Using Math.round() will give you a non-uniform distribution!
+ */
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 exports.handler = async (event) => {
 	// Just show a star as an example
-	const exampleSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' + 
-		'<path d="M50,3l12,36h38l-30,22l11,36l-31-21l-31,21l11-36l-30-22h38z" ' + 
-		'fill="#FF0" stroke="#FC0" stroke-width="2"/>' + 
-		'</svg>';
+	const timeString = getTimeString(getRandomInt(1, 6));
+	const width = (timeString.length * 6.62) + 20;
+	const height = 30;
+	const svg = `
+	<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" fill="none" data-minimalscrollbar="yes" height="${height}" width="${width}">
+        <style>
+			.lang-name {
+				font-size: 11px;
+				font-family: monospace;
+				fill: #daf7dc;
+			}
+        </style>
+
+        <rect data-testid="card-bg" x="0.5" y="0.5" rx="4.5" height="100%" stroke="#e4e2e2" width="100%" fill="#151515" stroke-opacity="1"> 
+			test
+		</rect>
+        
+		<g transform="translate(10, 20)">
+			<text x="0" y="0" class="lang-name" data-testid="lang-name">${timeString}</text>
+		</g>
+
+		<span xmlns=""/>
+		<auto-scroll xmlns="http://www.w3.org/1999/xhtml">
+		</auto-scroll>
+	</svg>
+	`;
 
 	const response = {
 		statusCode: 200,
-		body: exampleSvg,
+		body: svg,
 		headers: {
 			// Set the content type to the correct Mime type
 			'Content-Type': 'image/svg+xml',
