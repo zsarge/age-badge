@@ -1,2 +1,5 @@
 *.zip
 *.swp
+spring-tools/agebadge/target/
+spring-tools/agebadge/.settings/
+spring-tools/agebadge/.metadata/
